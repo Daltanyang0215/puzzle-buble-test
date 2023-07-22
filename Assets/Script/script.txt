@@ -1,0 +1,432 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class TeamPanel : MonoBehaviour
+{
+    #region Singleton
+    public static TeamPanel instance;
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+    }
+    #endregion
+
+    UserData userData;
+    bool active = false;
+
+//    public UnitPanel_UI[] slots;
+    public List<UnitPanel_UI> slots;
+
+    public Transform slotholder;
+
+    public UnitPanel_UI[] seletslots;
+    public Transform seletslotholder;
+    //[HideInInspector]
+    public UnitPanel_UI temppanel;
+
+    // Start is called before the first frame update
+    public void Start()
+    {
+        userData = UserData.instance;
+        slots.Clear();
+        slots = slotholder.GetComponentsInChildren<UnitPanel_UI>().ToList<UnitPanel_UI>();
+        seletslots = seletslotholder.GetComponentsInChildren<UnitPanel_UI>();
+        userData.onSlotCountChange += SlotChange;
+        userData.onChangeItem += RedrawSlotUI;
+
+        for (int i = 0; i < 6; i++)
+        {
+            if (UserData.instance.user_Team[i] != 0)
+            {
+                seletslots[i].unit = UnitDataBase.instance.UnitDB[UserData.instance.user_Team[i]];
+                seletslots[i].unit_index = i;
+                seletslots[i].unitIcon.sprite = UnitDataBase.instance.UnitDB[UserData.instance.user_Team[i]].unit_Icon;
+                seletslots[i].selected = true;
+            }
+        }
+    }
+
+    public void SaveTeam()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            UserData.instance.user_Team[i] = seletslots[i].unit_index;
+        }
+    }
+
+
+    public void Swapteam(UnitPanel_UI first, UnitPanel_UI second)
+    {
+        Unit tempunit;
+        int tempint;
+        tempunit = second.unit;
+        second.unit = first.unit;
+        first.unit = tempunit;
+
+        tempint = second.unit_index;
+        second.unit_index = first.unit_index;
+        first.unit_index = tempint;
+
+        first.selectIcon.SetActive(false);
+        second.selectIcon.SetActive(false);
+        first.UpdateSlotUi();
+        second.UpdateSlotUi();
+        temppanel = null;
+        for (int i = 0; i < 6; i++) UserData.instance.user_Team[i] = seletslots[i].unit_index;
+        selectclear();
+    }
+
+    public void selectclear()
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            slots[i].selectIcon.SetActive(false);
+        }
+    }
+
+
+    private void SlotChange(int val)
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            slots[i].slotnum = i;
+
+            if (i < userData.Slotcnt)
+            {
+                slots[i].GetComponent<Button>().interactable = true;
+            }
+            else
+            {
+                slots[i].GetComponent<Button>().interactable = false;
+            }
+        }
+    }
+
+
+    public void slotadd()
+    {
+        userData.Slotcnt+=5;
+    }
+    void RedrawSlotUI()
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            slots[i].RemoveSlot();
+        }
+        for (int i = 0; i < userData.user_Units.Count; i++)
+        {
+            slots[i].unit = UnitDataBase.instance.UnitDB[UserData.instance.user_Units[i]];
+            //seletslots[i].unit = UnitDataBase.instance.UnitDB[UserData.instance.user_Team[i]];
+            slots[i].UpdateSlotUi();
+        }
+    }
+}
+---------------------------------- teampanel
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class UserData : MonoBehaviour
+{
+    #region Singleton
+    public static UserData instance;
+    private void Awake()
+    {
+        if (instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        //DontDestroyOnLoad(instance);
+    }
+    #endregion
+
+    public string user_Name;
+    public int user_Level;
+    public int map_Level;
+
+    public int[] user_Team = new int[6];
+    public List<int> user_Units = new List<int>();
+
+    public delegate void OnSlotCountChange(int val);
+    public OnSlotCountChange onSlotCountChange;
+
+    public delegate void OnChangeItem();
+    public OnChangeItem onChangeItem;
+
+    private int slotcnt;
+
+    public GameObject get_Ui;
+    public Image get_icon;
+
+    public GameObject unit_Ui;
+    public Image unit_icon;
+    int saveint;
+
+    string filePath;
+
+    [SerializeField]
+    public class Data
+    {
+        public string username;
+        public int user_Level;
+        public int map_Level;
+        public int slotcnt;
+        public int[] user_Team;
+        public List<int> user_Units;
+    }
+        
+    public int Slotcnt
+    {
+        get => slotcnt;
+        set
+        {
+            slotcnt = value;
+            onSlotCountChange.Invoke(slotcnt);
+        }
+    }
+
+    public void Start()
+    {
+        filePath = Application.persistentDataPath + "/MyUnitsText.txt";
+        Load();
+        for (int i = 0; i < 6; i++)
+        {
+            if (user_Team[i] == 0)
+            {
+                AddUnit(UnitDataBase.instance.UnitDB[i]);
+                user_Team[i] = user_Units[i];
+            }
+        }
+        onChangeItem.Invoke();
+    }
+    public bool AddUnit(Unit _unit)
+    {
+        if (user_Units.Count < Slotcnt)
+        {
+            user_Units.Add(_unit.unit_Index);
+            if (onChangeItem != null)
+            {
+                onChangeItem.Invoke();
+            }
+            return true;
+        }
+        return false;
+    }
+    public void RemoveUnit(int _index)
+    {
+        user_Units.RemoveAt(_index);
+        onChangeItem.Invoke();
+    }
+
+    public void ShopUnit()
+    {
+        int ran = Random.Range(1, UnitDataBase.instance.UnitDB.Count);
+        AddUnit(UnitDataBase.instance.UnitDB[ran]);
+        get_icon.sprite = UnitDataBase.instance.UnitDB[ran].unit_Icon;
+        onChangeItem.Invoke();
+    }
+
+    public void SelectUnit(int index)
+    {
+        saveint = index;
+        unit_Ui.SetActive(true);
+        unit_icon.sprite = TeamPanel.instance.slots[index].unit.unit_Icon;
+    }
+    public void SelectRemoveUnit()
+    {
+        user_Units.RemoveAt(saveint);
+        saveint = 0;
+        onChangeItem.Invoke();
+    }
+
+    //private void OnLevelWasLoaded(int level)
+    //{
+    //    if (level == 0)
+    //    {
+    //        Debug.Log("load");
+    //        get_Ui = GameObject.Find("GETUI_Image");
+    //        if (onChangeItem != null)
+    //        {
+    //            onChangeItem.Invoke();
+    //        }
+    //        for (int i = 0; i < 6; i++)
+    //        {
+    //            //if (user_team[i] == null)
+    //            {
+    //                //addunit(unitdatabase.instance.unitdb[i]);
+    //                user_Team[i] = SendData.instance.units[i];
+    //            }
+    //        }
+    //        //TeamPanel.instance.Start();
+
+    //    }
+    //}
+
+    //void Onenable()
+    //{
+    //    SceneManager.sceneLoaded += Onlevelfinishedloading;
+    //}
+
+    //void Ondisable()
+    //{
+    //    SceneManager.sceneLoaded -= Onlevelfinishedloading;
+    //}
+
+    //void Onlevelfinishedloading(Scene scene, LoadSceneMode mode)
+    //{
+    //    Debug.Log(scene.name);
+    //    if (scene.name == "MenuScene")
+    //    {
+    //        Debug.Log("load");
+    //        get_Ui = GameObject.Find("GETUI_Image");
+    //        //if (onChangeItem != null)
+    //        {
+    //            onChangeItem.Invoke();
+    //        }
+    //        for (int i = 0; i < 6; i++)
+    //        {
+    //            //if (user_team[i] == null)
+    //            {
+    //                //addunit(unitdatabase.instance.unitdb[i]);
+    //                user_Team[i] = SendData.instance.units[i];
+    //            }
+    //        }
+    //        //TeamPanel.instance.Start();
+
+    //    }
+    //}
+
+    //private void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    if (collision.CompareTag("FieldItem"))
+    //    {
+    //        FieldItems fieldItems = collision.GetComponent<FieldItems>();
+    //        if (AddItem(fieldItems.GetItem()))
+    //        {
+    //            fieldItems.DestroyItem();
+    //        }
+    //    }
+    //}
+
+    public void Save()
+    {
+        Data savedata = new Data();
+        savedata.username = user_Name;
+        savedata.user_Level = user_Level;
+        savedata.map_Level = map_Level;
+        savedata.user_Team = user_Team;
+        savedata.user_Units = user_Units;
+        savedata.slotcnt = Slotcnt;
+        //string savesata = JsonUtility.ToJson(new UnitSerializable<Unit>(user_Units));
+        string savesata = JsonUtility.ToJson(savedata);
+        File.WriteAllText(filePath, savesata);
+
+        Debug.Log("save");
+    }
+    public void Load()
+    {
+        if (!File.Exists(filePath)) { return; }
+
+        string loaddata = File.ReadAllText(filePath);
+        //user_Units = JsonUtility.FromJson<UnitSerializable<Unit>>(loaddata).target;
+
+        Data load_data = new Data();
+        load_data = JsonUtility.FromJson<Data>(loaddata);
+        user_Name = load_data.username;
+        user_Level = load_data.user_Level;
+        map_Level = load_data.map_Level;
+        user_Team = load_data.user_Team;
+        user_Units = load_data.user_Units;
+        if(load_data.slotcnt==0) Slotcnt = 20;
+        else Slotcnt = load_data.slotcnt;
+        onChangeItem.Invoke();
+        Debug.Log("load");
+    }
+}
+---------------------------user data
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class UnitPanel_UI : MonoBehaviour , IPointerUpHandler
+{
+
+    public int slotnum;
+    public int unit_index;
+    public Unit unit;
+    public Image unitIcon;
+    public bool selected;
+    public GameObject selectIcon;
+    public void UpdateSlotUi()
+    {
+        unitIcon.sprite = unit.unit_Icon;
+       if(unit.unit_Index!=0) unitIcon.gameObject.SetActive(true);
+    }
+    public void RemoveSlot()
+    {
+        unit = null;
+        unitIcon.gameObject.SetActive(false);
+
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (unit == null && selected==false) return;
+        else if (unit != null && selected == false && TeamPanel.instance.temppanel == null)
+        {
+            UserData.instance.SelectUnit(slotnum);
+        }
+        else if (selected&& TeamPanel.instance.temppanel==null)
+        {
+            TeamPanel.instance.temppanel = this;
+            if (unit.unit_Index != 0 || unit == null)
+            {
+                TeamPanel.instance.slots[unit_index].selectIcon.SetActive(true);
+            }
+            selectIcon.SetActive(true);
+        }
+        else if(TeamPanel.instance.temppanel != null && selected)
+        {
+            TeamPanel.instance.Swapteam(TeamPanel.instance.temppanel,this);
+            
+        }
+        else if (TeamPanel.instance.temppanel != null && !selected)
+        {
+            for (int i = 0; i < TeamPanel.instance.seletslots.Length; i++)
+            {
+                if( TeamPanel.instance.seletslots[i].unit_index == slotnum)
+                {
+                    TeamPanel.instance.seletslots[i].unit_index = 0;
+                    TeamPanel.instance.seletslots[i].unit=null;
+                }
+            }
+
+            TeamPanel.instance.temppanel.selectIcon.SetActive(false);
+            TeamPanel.instance.temppanel.unit=unit;
+            TeamPanel.instance.temppanel.unit_index = slotnum;
+            TeamPanel.instance.temppanel.UpdateSlotUi();
+            TeamPanel.instance.temppanel = null;
+
+
+            TeamPanel.instance.SaveTeam();
+            TeamPanel.instance.selectclear();
+        }
+    }
+}
+--------------------------unitpanel ui

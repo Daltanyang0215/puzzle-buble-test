@@ -1,0 +1,121 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3839492196233453275
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3839492196233453276}
+  - component: {fileID: 3839492196233453277}
+  m_Layer: 0
+  m_Name: UintDataBase
+  m_TagString: GameController
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3839492196233453276
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3839492196233453275}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3839492196233453277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3839492196233453275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91a0d69712a315749be2ef52638380e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UnitDB:
+  - unit_Index: 0
+    unit_Type: 0
+    unit_name: nulltest
+    unit_Image: {fileID: 21300000, guid: d688821b01c1e014987c63e12ca1440e, type: 3}
+    unit_Icon: {fileID: 21300000, guid: d688821b01c1e014987c63e12ca1440e, type: 3}
+    AttackEffet: {fileID: 0}
+    unit_HP: 1
+    unit_Attack: 1
+    unit_Recovery: 1
+    Attack_Count_MAX: 1
+  - unit_Index: 1
+    unit_Type: 0
+    unit_name: fire
+    unit_Image: {fileID: 21300000, guid: 250dc532ec5737240b3409958bc34102, type: 3}
+    unit_Icon: {fileID: 21300000, guid: 250dc532ec5737240b3409958bc34102, type: 3}
+    AttackEffet: {fileID: 1134129239631916, guid: 7e48ba6b1b968764490bbc70b66e3fe1,
+      type: 3}
+    unit_HP: 10
+    unit_Attack: 10
+    unit_Recovery: 1
+    Attack_Count_MAX: 10
+  - unit_Index: 2
+    unit_Type: 1
+    unit_name: water
+    unit_Image: {fileID: 21300000, guid: 9b0b3fc7721dde646ab860e99903eb41, type: 3}
+    unit_Icon: {fileID: 21300000, guid: 9b0b3fc7721dde646ab860e99903eb41, type: 3}
+    AttackEffet: {fileID: 1687118924408352, guid: 77c69ec12208c4c4380d15e30b6f8f68,
+      type: 3}
+    unit_HP: 10
+    unit_Attack: 1
+    unit_Recovery: 5
+    Attack_Count_MAX: 10
+  - unit_Index: 3
+    unit_Type: 2
+    unit_name: eath
+    unit_Image: {fileID: 21300000, guid: 8fd98f429b550dd4187454917cbb9209, type: 3}
+    unit_Icon: {fileID: 21300000, guid: 8fd98f429b550dd4187454917cbb9209, type: 3}
+    AttackEffet: {fileID: 1995403933065894, guid: 4961a16ba01e09547be3e1c9d16d5ad0,
+      type: 3}
+    unit_HP: 50
+    unit_Attack: 1
+    unit_Recovery: 1
+    Attack_Count_MAX: 10
+  - unit_Index: 4
+    unit_Type: 0
+    unit_name: fire2
+    unit_Image: {fileID: 21300000, guid: 57fb11ebdbdec0d4da191bc96289da01, type: 3}
+    unit_Icon: {fileID: 21300000, guid: 57fb11ebdbdec0d4da191bc96289da01, type: 3}
+    AttackEffet: {fileID: 1628744458893394, guid: e243632bb3aff9549abdcfcc2ef0c4f0,
+      type: 3}
+    unit_HP: 20
+    unit_Attack: 20
+    unit_Recovery: 2
+    Attack_Count_MAX: 15
+  - unit_Index: 5
+    unit_Type: 1
+    unit_name: water2
+    unit_Image: {fileID: 21300000, guid: 3c569f47a137bd64dacacb4a3ab909f9, type: 3}
+    unit_Icon: {fileID: 21300000, guid: 3c569f47a137bd64dacacb4a3ab909f9, type: 3}
+    AttackEffet: {fileID: 100000, guid: 3156817f64ec68948ad6bb26569b9ef5, type: 3}
+    unit_HP: 20
+    unit_Attack: 2
+    unit_Recovery: 10
+    Attack_Count_MAX: 15
+  - unit_Index: 6
+    unit_Type: 2
+    unit_name: eath2
+    unit_Image: {fileID: 21300000, guid: ac8c8515a64c22f43b3f53dd23019840, type: 3}
+    unit_Icon: {fileID: 21300000, guid: ac8c8515a64c22f43b3f53dd23019840, type: 3}
+    AttackEffet: {fileID: 1845240806346120, guid: b395d5d6eb4b4b846acc021ee036b744,
+      type: 3}
+    unit_HP: 100
+    unit_Attack: 2
+    unit_Recovery: 2
+    Attack_Count_MAX: 15
